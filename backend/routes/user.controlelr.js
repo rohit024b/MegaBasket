@@ -19,6 +19,17 @@ userRouter.get("/", auth, checkAccess([ROLES.ADMIN]), async (req, res) => {
     }
 })
 
+//get single user 
+userRouter.get("/profile/:id", auth, checkAccess([ROLES.ADMIN, ROLES.SELLER, ROLES.USER]), async (req, res) => {
+    try {
+        const userData = await userModel.findById(req.params.id);
+        res.status(200).json({ userData })
+
+    } catch (err) {
+        res.status(500).send(err)
+    }
+})
+
 // Register
 userRouter.post("/register", async (req, res) => {
     try {

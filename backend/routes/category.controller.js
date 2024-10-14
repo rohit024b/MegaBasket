@@ -28,7 +28,7 @@ categoryRouter.post('/', auth, checkAccess([ROLES.SELLER]),async (req, res) => {
 // Get all categories
 categoryRouter.get('/', auth, checkAccess([ROLES.SELLER, ROLES.USER]), async (req, res) => {
     try {
-        const categories = await categoryModel.find().populate('products', 'name');
+        const categories = await categoryModel.find().populate('products');
         res.status(200).json(categories);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -38,7 +38,7 @@ categoryRouter.get('/', auth, checkAccess([ROLES.SELLER, ROLES.USER]), async (re
 // Get category by ID
 categoryRouter.get('/:id', auth, checkAccess([ROLES.SELLER, ROLES.USER]), async (req, res) => {
     try {
-        const category = await categoryModel.findById(req.params.id).populate('products', 'name');
+        const category = await categoryModel.findById(req.params.id).populate('products');
         if (!category) return res.status(404).json({ message: "Category not found" });
         res.status(200).json(category);
     } catch (err) {
