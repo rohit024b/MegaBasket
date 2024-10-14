@@ -1,13 +1,58 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import '../Navbar/Navbar.css'
 import { useNavigate } from 'react-router-dom'
 import ErrorPage from '../isError/ErrorPage'
+import { jwtDecode } from 'jwt-decode'
+import axios from 'axios'
 
 const Navbar = () => {
 
     const token = localStorage.getItem('token')
+    const [role, setRole] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]); // Store search results
+    const [isSearching, setIsSearching] = useState(false); // To show/hide search results
+
+    useEffect(() => {
+        // Get the token from localStorage
+        if (token) {
+            try {
+                // Decode the token to get the payload
+                const decodedToken = jwtDecode(token);
+                setRole(decodedToken.role);  // Extract the role and store it in state
+            } catch (error) {
+                console.error("Failed to decode token", error);
+            }
+        }
+    }, []);
 
     const navigate = useNavigate();
+    // Handle input change in search bar
+    const handleSearchChange = async (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+
+        if (query.length > 0) {
+            try {
+                setIsSearching(true);
+                // Call backend to fetch products
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/product?name=${query}`);
+                setSearchResults(response.data.msg); // Assuming the data structure
+            } catch (error) {
+                console.error("Error fetching search results", error);
+            }
+        } else {
+            setIsSearching(false); // Hide results if query is empty
+            setSearchResults([]);
+        }
+    };
+
+    // Handle product selection and navigation to product details
+    const handleProductClick = (productId) => {
+        navigate(`/product/${productId}`); // Navigate to product details page
+        setIsSearching(false); // Hide search results
+    };
+
 
     //for profile drop down/login
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -15,7 +60,7 @@ const Navbar = () => {
         if (!token) {
             navigate('/login')
         } else {
-            setIsDropdownOpen((isDropdownOpen) => !isDropdownOpen);
+            setIsDropdownOpen((prev) => !prev);
         }
 
     }
@@ -24,21 +69,27 @@ const Navbar = () => {
     const handleUserProfile = async () => {
         navigate(`/profile/${userID}`)
     }
-    
-    const handleOrders=()=>{
+
+    const handleOrders = () => {
         navigate(`/myorders/${userID}`)
     }
-    const handleCart=()=>{
+    const handleCart = () => {
         navigate(`/cart/${userID}`)
+    }
+    const handleWishlist = () => {
+        navigate(`/WishList/${userID}`)
+    }
+    const handleAddProduct = () => {
+        navigate(`/create`)
     }
 
     const handlelogout = () => {
         try {
-            if(token){
+            if (token) {
                 localStorage.removeItem('token');
-            localStorage.removeItem('userId');
-            // Optionally redirect the user to the login page
-            window.location.href = '/login';
+                localStorage.removeItem('userId');
+                // Optionally redirect the user to the login page
+                window.location.href = '/login';
             }
         } catch (error) {
             console.log(error)
@@ -50,10 +101,12 @@ const Navbar = () => {
             <header className='shadow-md topHeader'>
                 <div className='container-top'>
                     <div className='nav-content'>
-                        <img width={'100px'} style={{ objectFit: 'contain' }}
-                            src="https://i.imgur.com/WZvbXp1.png" alt="logo" />
+                        <a href="/">
+                            <img width={'150px'} style={{ objectFit: 'contain' }}
+                                src="https://i.imgur.com/t5OgiWt.png" alt="logo" />
+                        </a>
 
-                        <div className='search-nav'>
+                        {/* <div className='search-nav'>
                             <span className='search-box-nav'>
                                 <i className='bx bx-search' style={{
                                     fontSize: '20px',
@@ -63,7 +116,31 @@ const Navbar = () => {
                                 </i>
                                 <input style={{ width: '100%', outline: 'none' }} type="search" placeholder="Search Fro Product" />
                             </span>
+                        </div> */}
+                        <div className='search-nav'>
+                            <span className='search-box-nav'>
+                                <i className='bx bx-search' style={{ fontSize: '20px', display: 'flex', alignItems: 'center' }}></i>
+                                <input
+                                    style={{ width: '100%', outline: 'none' }}
+                                    type="search"
+                                    placeholder="Search for Product"
+                                    value={searchQuery}
+                                    onChange={handleSearchChange} // Listen to changes
+                                />
+                            </span>
                         </div>
+                        {isSearching && searchResults.length > 0 && (
+                                <ul className="search-results-dropdown absolute searchBoxData">
+                                    {searchResults.map(product => (
+                                        <li className='flex gap-2' key={product._id} onClick={() => handleProductClick(product._id)}>
+                                            <img width={'50px'} src={product.image} alt="" />
+                                            {product.name}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
+
                     </div>
                     <div className='log-container'>
                         <div className="flex w-full gap-8" >
@@ -96,6 +173,11 @@ const Navbar = () => {
                             <ul>
                                 <li onClick={handleUserProfile}>Profile</li>
                                 <li onClick={handleOrders}>Orders</li>
+                                <li onClick={handleCart}>Cart</li>
+                                <li onClick={handleWishlist}>Wishlist</li>
+                                {
+                                    role === 'seller' ? <li onClick={handleAddProduct} className='text-red-500'>Add Products</li> : ""
+                                }
                                 <li onClick={handlelogout}>Log Out</li>
                             </ul>
                         </div>

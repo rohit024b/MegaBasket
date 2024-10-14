@@ -1,13 +1,14 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { Routes, Route, useParams } from 'react-router-dom';
+import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import '../UserProfile/userProfile.css'
 
 const UserProfile = () => {
 
     const {id} = useParams();
     const token = localStorage.getItem('token')
-    
+    const navigate = useNavigate();
+    const userID = localStorage.getItem('userId')
 
     const [userData, setUserData] = useState();
     const fetchUser = async () => {
@@ -46,7 +47,7 @@ const UserProfile = () => {
                 <div className="profile-pic-wrapper">
                     <img
                         src={'https://via.placeholder.com/150'} // Fallback if no profile picture
-                        alt="Profile"
+                        alt="Profile"   
                         className="profile-pic"
                     />
                 </div>
@@ -58,24 +59,12 @@ const UserProfile = () => {
                     <p><strong>Phone:</strong> {userData?.phone}</p>
                     <p><strong>City:</strong> {userData?.city}</p>
                 </div>
-                <div className="profile-section">
+                <button onClick={()=>{navigate(`/myorders/${userID}`)}} className="profile-section">
                     <h3>Your Orders</h3>
-                    {/* Map through orders if available */}
-                    <ul>
-                        {userData?.orders?.map((order, index) => (
-                            <li key={index}>Order #{order.id}</li>
-                        )) || <p>No orders yet.</p>}
-                    </ul>
-                </div>
-                <div className="profile-section">
+                </button>
+                <button onClick={()=>{navigate(`/wishlist/${userID}`)}} className="profile-section">
                     <h3>Wishlist</h3>
-                    {/* Map through wishlist if available */}
-                    <ul>
-                        {userData?.wishlist?.map((item, index) => (
-                            <li key={index}>{item.name}</li>
-                        )) || <p>No items in wishlist.</p>}
-                    </ul>
-                </div>
+                </button>
             </div>
         </div>
     </div>

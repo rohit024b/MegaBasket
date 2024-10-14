@@ -2,13 +2,29 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import '../Products/Products.css'
+import { jwtDecode } from 'jwt-decode'
+
 
 const Products = () => {
 
     const [prod, setProd] = useState([])
     const { id } = useParams();
-    const token = localStorage.getItem('token');
     const [catName, setCatName] = useState();
+    const token = localStorage.getItem('token')
+    const [role, setRole] = useState('');
+
+    useEffect(() => {
+        // Get the token from localStorage
+        if (token) {
+            try {
+                // Decode the token to get the payload
+                const decodedToken = jwtDecode(token);
+                setRole(decodedToken.role);  // Extract the role and store it in state
+            } catch (error) {
+                console.error("Failed to decode token", error);
+            }
+        }
+    }, []);
 
 
 
@@ -42,6 +58,26 @@ const Products = () => {
         }
     }
 
+    const handleUnlistProduct = async(productId) => {
+        try {
+            const response = await axios.delete(`${process.env.REACT_APP_API_URL}/product/delete/${productId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`  // Attach the token to the request
+                }
+            });
+            if (response.status === 200) {
+                alert('Item Unlisted from the Web Store!!')
+                // setProd(response.data);
+                setProd(prevProd => prevProd.filter(product => product._id !== productId));
+                console.log(response.data)
+            } else {
+                console.log("Failed to fetch Orders. Please try again.");
+            }
+        } catch (error) {
+            console.error('Error fetching cart:', error);
+        }
+    }
+
     useEffect(() => {
         fetchProductsFromCategory();
     }, [])
@@ -53,17 +89,34 @@ const Products = () => {
         return 0;
     };
 
-    const handleaddToCart= async(id)=>{
+    const handleaddToCart = async (id) => {
         console.log(id)
         try {
-            const res = await axios.post(`${process.env.REACT_APP_API_URL}/cart/add/${id}`,{},{
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/cart/add/${id}`, {}, {
                 headers: {
                     'Authorization': `Bearer ${token}`  // Attach the token to the request
                 }
             });
-            if(res.status === 200){
+            if (res.status === 200) {
                 alert("Item Added to the cart 👍")
-            }else{
+            } else {
+                alert("Something Went wront try after somtime!!")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    const handleaddTowishlist = async (id) => {
+        console.log(id)
+        try {
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/wishlist/add/${id}`, {}, {
+                headers: {
+                    'Authorization': `Bearer ${token}`  // Attach the token to the request
+                }
+            });
+            if (res.status === 200) {
+                alert("Item Added to the WishList 👍")
+            } else {
                 alert("Something Went wront try after somtime!!")
             }
         } catch (error) {
@@ -95,9 +148,19 @@ const Products = () => {
                                             {calculateDiscount(product.price, product.dashedPrice)}% OFF
                                         </p>
                                     )}
-                                    <button onClick={() => handleaddToCart(product._id)} className='bg-red-600 w-[200px] text-white p-2 rounded'>
-                                        <span>Add To Cart</span>
-                                    </button>
+                                    <div className='flex flex-col gap-1 items-center'>
+                                        <button onClick={() => handleaddToCart(product._id)} className='bg-red-600 w-[200px] text-white p-2 rounded'>
+                                            <span>Add To Cart</span>
+                                        </button>
+                                        <button onClick={() => handleaddTowishlist(product._id)} className='bg-red-600 w-[200px] text-white p-2 rounded'>
+                                            <span>Add To Wishlist</span>
+                                        </button>
+                                        {
+                                            role === 'seller' ? <button onClick={() => handleUnlistProduct(product._id)} className='bg-red-600 w-[200px] text-white p-2 rounded'>
+                                                <span>Unlist the Item</span>
+                                            </button> : ""
+                                        }
+                                    </div>
                                 </div>
                             ))
                         )}
