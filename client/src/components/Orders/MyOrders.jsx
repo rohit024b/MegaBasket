@@ -13,14 +13,14 @@ const MyOrders = () => {
     const fetchUserOrders = async () => {
         try {
             // setLoading(true);
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/profile/${id}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/orders`, {
                 headers: {
                     'Authorization': `Bearer ${token}`  // Attach the token to the request
                 }
             });
             if (response.status === 200) {
-                setOrders(response.data.userData.orders);
-                // console.log(response)
+                setOrders(response.data.orders);
+                console.log(response.data.orders)
             } else {
                 console.log("Failed to fetch Orders. Please try again.")
             }
@@ -29,6 +29,7 @@ const MyOrders = () => {
             console.log(err)
         }
     }
+    // console.log(orders)
 
 
     useEffect(() => {
@@ -52,13 +53,13 @@ const MyOrders = () => {
                         <li key={order._id} className="order-item">
                             <div className="order-item-content">
                                 <img
-                                    src={order.product.imageUrl}
-                                    alt={order.product.name}
+                                    src={order.image}
+                                    alt={order.name}
                                     className="order-item-image"
                                 />
                                 <div className="order-item-details">
-                                    <h3>{order.product.name}</h3>
-                                    <p>Price: ${order.product.price}</p>
+                                    <h3>{order.name}</h3>
+                                    <p>Due Amount: Rs.{order.price}</p>
                                     <p>Ordered on: {new Date(order.orderDate).toLocaleDateString()}</p>
                                     <p>Delivery Date: {new Date(order.deliveryDate).toLocaleDateString()}</p>
                                 </div>

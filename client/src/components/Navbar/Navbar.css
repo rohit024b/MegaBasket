@@ -97,3 +97,22 @@
   .dropdown-menu1 li:hover {
     background-color: #86bde7;
   }
+
+  .searchBoxData{
+    border-radius: 5px;
+    width: 500px;
+    left:23%;
+    top: 55px;
+    background-color: #dbebf7;
+    padding: 10px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .searchBoxData > li{
+    margin: 2px;
+    border: 0.5px solid black;
+    padding: 5px;
+    align-items: center;
+    border-radius: 8px;
+  }

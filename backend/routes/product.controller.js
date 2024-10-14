@@ -67,7 +67,7 @@ productRouter.put('/:id', auth, checkAccess([ROLES.SELLER]), async (req, res) =>
 });
 
 // Delete a product (Admin or Seller only)
-productRouter.delete('/:id',auth, checkAccess([ROLES.SELLER]) , async (req, res) => {
+productRouter.delete('/delete/:id',auth, checkAccess([ROLES.SELLER]) , async (req, res) => {
     try {
         await productModel.findByIdAndDelete(req.params.id);
         res.status(200).json({ message: "Product deleted successfully" });
