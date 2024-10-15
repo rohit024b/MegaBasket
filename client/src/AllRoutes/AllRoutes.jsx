@@ -12,6 +12,8 @@ import Cart from '../components/Cart/Cart'
 import Products from '../components/Products/Products'
 import Wishlist from '../components/Wishlist/Wishlist'
 import Create from '../components/AddProduct/Create'
+import SingleProduct from '../components/SingleProduct/SingleProduct'
+import PrivateRoutes from './PrivateRoutes'
 
 
 const AllRoutes = () => {
@@ -22,11 +24,12 @@ const AllRoutes = () => {
                 <Route path='/' element={<Home />} />
                 <Route path='/login' element={<Log />} />
                 <Route path='/signup' element={<SignUp />} />
-                <Route path='/create' element={<Create/>} />
-                <Route path='/profile/:id' element={<UserProfile />} />
+                <Route path='/create' element={<PrivateRoutes><Create/></PrivateRoutes>} />
+                <Route path='/profile/:id' element={<PrivateRoutes><UserProfile /></PrivateRoutes>} />
+                <Route path='/singleproduct/:id' element={<SingleProduct />} />
                 <Route path='/myorders/:id' element={<MyOrders />} />
                 <Route path='/wishlist/:id' element={<Wishlist />} />
-                <Route path='/cart/:id' element={<Cart />} />
+                <Route path='/cart/:id' element={<PrivateRoutes><Cart /></PrivateRoutes>} />
                 <Route path='/products/:id' element={<Products />} />
                 <Route path='*' element={<ErrorPage />} />
             </Routes>

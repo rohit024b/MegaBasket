@@ -44,7 +44,7 @@ productRouter.post("/create", auth, checkAccess([ROLES.SELLER]), async (req, res
 // });
 
 // Get product by ID
-productRouter.get('/:id',auth, async (req, res) => {
+productRouter.get('/:id', async (req, res) => {
     try {
         const product = await productModel.findById(req.params.id).populate('category','name');
         if (!product) return res.status(404).json({ message: "Product not found" });

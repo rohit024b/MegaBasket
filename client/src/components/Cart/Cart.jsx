@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Cart.css'; // Import your custom styles
+import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
     const [cart, setCart] = useState([]);
@@ -72,12 +73,67 @@ const Cart = () => {
         }
     };
 
-    // Handle buy now action
-    const handleBuyNow = () => {
-        alert('Proceeding to checkout with total: Rs.' + totalPrice);
-        // Proceed to checkout or payment page
-    };
+    // // Handle buy now action
+    // const handleBuyNow = async() => {
+    //     try {
+    //         const res = await axios.post(`${process.env.REACT_APP_API_URL}/orders/add/${id}`, {}, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${token}`  // Attach the token to the request
+    //             }
+    //         });
+    //         if (res.status === 201) {
+    //             alert("Order is placed successfully!!! 👍")
+    //         } else {
+    //             alert("Something Went wront try after somtime!!")
+    //         }
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    //     // Proceed to checkout or payment page
+    // };
 
+    console.log(cart)
+    const handleBuyNow = async () => {
+        if (!cart.length) {
+            alert("Your cart is empty.");
+            return;
+        }
+    
+        try {
+            // Loop over each product in the cart and place an order
+            for (let i = 0; i < cart.length; i++) {
+                const product = cart[i]; // Get the current product in the cart
+                const res = await axios.post(
+                    `${process.env.REACT_APP_API_URL}/orders/add/${product._id}`, 
+                    {}, 
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`  // Attach the token to the request
+                        }
+                    }
+                );
+    
+                if (res.status === 200) {
+                    console.log(`Order placed for ${product.name}`);
+                } else {
+                    console.log(`Failed to place order for ${product.name}`);
+                }
+            }
+    
+            // If all orders were placed successfully, alert the user
+            alert("All orders placed successfully! 👍");
+        } catch (error) {
+            console.log("Error placing orders:", error);
+            alert("Something went wrong. Please try again later.");
+        }
+    };
+    
+
+    const navigate = useNavigate();
+    const handleProductClick = (productId) => {
+        navigate(`/singleproduct/${productId}`); // Navigate to product details page
+        // setIsSearching(false); // Hide search results
+    };
     return (
 
         <div style={{
@@ -92,9 +148,9 @@ const Cart = () => {
                         <p>Your cart is empty.</p>
                     ) : (
                         <>
-                            <ul className="cart-list">
+                            <ul  className="cart-list">
                                 {cart.map((item) => (
-                                    <li key={item._id} className="cart-item">
+                                    <li onClick={() => handleProductClick(item._id)} key={item._id} className="cart-item">
                                         <img
                                             src={item.image}
                                             alt={item.name}

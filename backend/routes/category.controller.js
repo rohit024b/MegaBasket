@@ -26,7 +26,7 @@ categoryRouter.post('/', auth, checkAccess([ROLES.SELLER]),async (req, res) => {
 
 
 // Get all categories
-categoryRouter.get('/', auth, checkAccess([ROLES.SELLER, ROLES.USER]), async (req, res) => {
+categoryRouter.get('/', async (req, res) => {
     try {
         const categories = await categoryModel.find().populate('products');
         res.status(200).json(categories);
