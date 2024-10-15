@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import '../Products/Products.css'
 import { jwtDecode } from 'jwt-decode'
 
@@ -90,7 +90,7 @@ const Products = () => {
     };
 
     const handleaddToCart = async (id) => {
-        console.log(id)
+        // console.log(id)
         try {
             const res = await axios.post(`${process.env.REACT_APP_API_URL}/cart/add/${id}`, {}, {
                 headers: {
@@ -124,6 +124,12 @@ const Products = () => {
         }
     }
 
+    const navigate = useNavigate();
+    const handleProductClick = (productId) => {
+        navigate(`/singleproduct/${productId}`); // Navigate to product details page
+        // setIsSearching(false); // Hide search results
+    };
+
     return (
         <div style={{
             margin: 'auto',
@@ -139,7 +145,7 @@ const Products = () => {
                         ) : (
                             prod.map((product) => (
                                 <div className="product-card" key={product._id}>
-                                    <img src={product.image} alt={product.name} className="product-image" />
+                                    <img onClick={() => handleProductClick(product._id)} src={product.image} alt={product.name} className="product-image" />
                                     <h3 className="product-name">{product.name}</h3>
                                     <p className="product-price">Rs.{product.price}</p>
                                     <p className="product-dashed-price line-through">Rs.{product.dashedPrice}</p>

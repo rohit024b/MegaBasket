@@ -49,7 +49,7 @@ const Navbar = () => {
 
     // Handle product selection and navigation to product details
     const handleProductClick = (productId) => {
-        navigate(`/product/${productId}`); // Navigate to product details page
+        navigate(`/singleproduct/${productId}`); // Navigate to product details page
         setIsSearching(false); // Hide search results
     };
 
